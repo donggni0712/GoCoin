@@ -1,5 +1,11 @@
 package blockchain
 
+import (
+	"crypto/sha256"
+	"fmt"
+	"sync"
+)
+
 type block struct {
 	data     string
 	hash     string
@@ -18,15 +24,42 @@ type block struct {
 // singleton pattern => 변수를 직접 드러내지 않고 함수를 통해 드러내는 것
 
 type blockchain struct {
-	blocks []block
+	blocks []*block
 }
 
 var b *blockchain
+var once sync.Once
+
+func (b *block) calculateHash() {
+	hash := sha256.Sum256([]byte(b.data + b.prevHash))
+	b.hash = fmt.Sprintf("%x", hash)
+}
+
+//가장 최신의 블록의 해쉬를 가져옴
+func getLastHash() string {
+	totalBlocks := len(GetBlockchain().blocks)
+	if totalBlocks == 0 {
+		return ""
+	}
+	return GetBlockchain().blocks[totalBlocks-1].hash
+}
+
+//블록을 만듦
+func createBlock(data string) *block {
+	newBlock := block{data, "", getLastHash()}
+	newBlock.calculateHash()
+	return &newBlock
+}
 
 //블록체인을 호출할 때, 처음 호출한다면 b를 만들어줌.
 func GetBlockchain() *blockchain {
 	if b == nil {
-		b = &blockchain{}
+		//once.DO(func()) 는 func()가 몇번, 언제 호출되든 한번만 실행되게 함.
+		once.Do(func() {
+			// 이 코드는 단 한번만 실행되어야함 => sync Once 사용
+			b = &blockchain{}
+			b.blocks = append(b.blocks, createBlock(("Genesis Block")))
+		})
 	}
 	return b
 }
