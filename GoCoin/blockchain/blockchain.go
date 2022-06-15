@@ -22,6 +22,15 @@ type block struct {
 }
 
 // singleton pattern => 변수를 직접 드러내지 않고 함수를 통해 드러내는 것
+func (b block) GetData() string {
+	return b.data
+}
+func (b block) GetHash() string {
+	return b.hash
+}
+func (b block) GetPrevHash() string {
+	return b.prevHash
+}
 
 type blockchain struct {
 	blocks []*block
@@ -30,6 +39,7 @@ type blockchain struct {
 var b *blockchain
 var once sync.Once
 
+//CreateBlock에서 만드는 Blcock의 해쉬를 계산하고 선언해줌
 func (b *block) calculateHash() {
 	hash := sha256.Sum256([]byte(b.data + b.prevHash))
 	b.hash = fmt.Sprintf("%x", hash)
@@ -51,6 +61,10 @@ func createBlock(data string) *block {
 	return &newBlock
 }
 
+func (b *blockchain) AddBlock(data string) {
+	b.blocks = append(b.blocks, createBlock(data))
+}
+
 //블록체인을 호출할 때, 처음 호출한다면 b를 만들어줌.
 func GetBlockchain() *blockchain {
 	if b == nil {
@@ -58,8 +72,12 @@ func GetBlockchain() *blockchain {
 		once.Do(func() {
 			// 이 코드는 단 한번만 실행되어야함 => sync Once 사용
 			b = &blockchain{}
-			b.blocks = append(b.blocks, createBlock(("Genesis Block")))
+			b.AddBlock("Genesis")
 		})
 	}
 	return b
+}
+
+func (b *blockchain) AllBlocks() []*block {
+	return b.blocks
 }
