@@ -2,14 +2,29 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
+
+	"github.com/donggni0712/GoCoin/blockchain"
 )
 
 const port string = ":4000"
 
+type HomeData struct {
+	PageTitle string
+	Blocks    []*blockchain.Block
+}
+
 func home(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello from home!")
+	tmpl := template.Must(template.ParseFiles("templates/home.html"))
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	//이를 자동화 :
+	//tmpl, err := template.ParseFiles("templates/home.html") => template.Must
+	data := HomeData{"Home", blockchain.GetBlockchain().AllBlocks()}
+	tmpl.Execute(w, data)
 }
 
 func main() {

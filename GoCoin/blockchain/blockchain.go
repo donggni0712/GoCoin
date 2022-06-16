@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-type block struct {
+type Block struct {
 	data     string
 	hash     string
 	prevHash string
@@ -22,25 +22,25 @@ type block struct {
 }
 
 // singleton pattern => 변수를 직접 드러내지 않고 함수를 통해 드러내는 것
-func (b block) GetData() string {
+func (b Block) GetData() string {
 	return b.data
 }
-func (b block) GetHash() string {
+func (b Block) GetHash() string {
 	return b.hash
 }
-func (b block) GetPrevHash() string {
+func (b Block) GetPrevHash() string {
 	return b.prevHash
 }
 
 type blockchain struct {
-	blocks []*block
+	blocks []*Block
 }
 
 var b *blockchain
 var once sync.Once
 
 //CreateBlock에서 만드는 Blcock의 해쉬를 계산하고 선언해줌
-func (b *block) calculateHash() {
+func (b *Block) calculateHash() {
 	hash := sha256.Sum256([]byte(b.data + b.prevHash))
 	b.hash = fmt.Sprintf("%x", hash)
 }
@@ -55,8 +55,8 @@ func getLastHash() string {
 }
 
 //블록을 만듦
-func createBlock(data string) *block {
-	newBlock := block{data, "", getLastHash()}
+func createBlock(data string) *Block {
+	newBlock := Block{data, "", getLastHash()}
 	newBlock.calculateHash()
 	return &newBlock
 }
@@ -78,6 +78,6 @@ func GetBlockchain() *blockchain {
 	return b
 }
 
-func (b *blockchain) AllBlocks() []*block {
+func (b *blockchain) AllBlocks() []*Block {
 	return b.blocks
 }
