@@ -7,9 +7,9 @@ import (
 )
 
 type Block struct {
-	data     string
-	hash     string
-	prevHash string
+	Data     string
+	Hash     string
+	PrevHash string
 	/*
 		B1
 			B1Hash = (data +  'X')
@@ -23,13 +23,13 @@ type Block struct {
 
 // singleton pattern => 변수를 직접 드러내지 않고 함수를 통해 드러내는 것
 func (b Block) GetData() string {
-	return b.data
+	return b.Data
 }
 func (b Block) GetHash() string {
-	return b.hash
+	return b.Hash
 }
 func (b Block) GetPrevHash() string {
-	return b.prevHash
+	return b.PrevHash
 }
 
 type blockchain struct {
@@ -41,8 +41,8 @@ var once sync.Once
 
 //CreateBlock에서 만드는 Blcock의 해쉬를 계산하고 선언해줌
 func (b *Block) calculateHash() {
-	hash := sha256.Sum256([]byte(b.data + b.prevHash))
-	b.hash = fmt.Sprintf("%x", hash)
+	hash := sha256.Sum256([]byte(b.Data + b.PrevHash))
+	b.Hash = fmt.Sprintf("%x", hash)
 }
 
 //가장 최신의 블록의 해쉬를 가져옴
@@ -51,7 +51,7 @@ func getLastHash() string {
 	if totalBlocks == 0 {
 		return ""
 	}
-	return GetBlockchain().blocks[totalBlocks-1].hash
+	return GetBlockchain().blocks[totalBlocks-1].Hash
 }
 
 //블록을 만듦

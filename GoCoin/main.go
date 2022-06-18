@@ -17,14 +17,14 @@ type HomeData struct {
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("templates/home.html"))
+	tmpl := template.Must(template.ParseFiles("templates/home.gohtml"))
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
 	//이를 자동화 :
 	//tmpl, err := template.ParseFiles("templates/home.html") => template.Must
-	data := HomeData{"Home", blockchain.GetBlockchain().AllBlocks()}
-	tmpl.Execute(w, data)
+	Data := HomeData{"Home", blockchain.GetBlockchain().AllBlocks()}
+	tmpl.Execute(w, Data)
 }
 
 func main() {
