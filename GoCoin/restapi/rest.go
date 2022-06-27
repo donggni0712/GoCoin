@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/donggni0712/GoCoin/blockchain"
 	"github.com/donggni0712/GoCoin/utils"
@@ -88,7 +89,9 @@ func blocks(w http.ResponseWriter, r *http.Request) {
 
 func block(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id := vars["id"]
+	id, _ := strconv.Atoi(vars["id"])
+	block := blockchain.GetBlockchain().GetBlock(id)
+	json.NewEncoder(w).Encode(block)
 }
 
 func Start(aPort int) {
