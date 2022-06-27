@@ -8,6 +8,7 @@ import (
 
 	"github.com/donggni0712/GoCoin/blockchain"
 	"github.com/donggni0712/GoCoin/utils"
+	"github.com/gorilla/mux"
 )
 
 type url string
@@ -85,6 +86,11 @@ func blocks(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func block(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+}
+
 func Start(aPort int) {
 	// port = fmt.Sprintf(":%d", aPort)
 	// http.HandleFunc("/", documentation)
@@ -94,11 +100,21 @@ func Start(aPort int) {
 
 	// 새 mux를 생성해주고 http => handler로 변경해준다.
 	//nil => handler
-	handler := http.NewServeMux()
+	// handler := http.NewServeMux()
+	// port = fmt.Sprintf(":%d", aPort)
+	// handler.HandleFunc("/", documentation)
+	// handler.HandleFunc("/blocks", blocks)
+	// fmt.Printf("Listening on http://localhost%s\n", port)
+	// log.Fatal(http.ListenAndServe(port, handler))
+
+	//gorilla mux 사용
+	//다른 method로부터 보호해줄 수 있고 parameter 넘겨줄 수 있음
+	router := mux.NewRouter()
 	port = fmt.Sprintf(":%d", aPort)
-	handler.HandleFunc("/", documentation)
-	handler.HandleFunc("/blocks", blocks)
+	router.HandleFunc("/", documentation).Methods("GET")
+	router.HandleFunc("/blocks", blocks).Methods("GET", "POST")
+	router.HandleFunc("/block/{id:[0-9]+}", block).Methods("GET")
 	fmt.Printf("Listening on http://localhost%s\n", port)
-	log.Fatal(http.ListenAndServe(port, handler))
+	log.Fatal(http.ListenAndServe(port, router))
 
 }
