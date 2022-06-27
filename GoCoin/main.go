@@ -9,8 +9,20 @@ import (
 
 const port string = ":4000"
 
+type URL string
+
+//MarshalText Interface
+func (u URL) MarshalText() ([]byte, error) {
+	return []byte(fmt.Sprintf("http://localhost%s%s", port, u)), nil
+}
+
+//String Interface => URL이 string으로 바뀔때 패키지가 인터페이스를 호출해줌
+// func (u URL) String() string{
+// 	return "hi"
+// }
+
 type URLDescription struct {
-	URL         string `json:"url"` //field struct tag
+	URL         URL    `json:"url"` //field struct tag
 	Method      string `json:"method"`
 	Description string `json:"description"`
 	Payload     string `json:"payload,omitempty"` // omitempty : 빈 값은 출력x #띄어쓰면 안됨
@@ -19,12 +31,12 @@ type URLDescription struct {
 func documentation(w http.ResponseWriter, r *http.Request) {
 	data := []URLDescription{
 		{
-			URL:         "/",
+			URL:         URL("/"),
 			Method:      "GET",
 			Description: "See Documentation",
 		},
 		{
-			URL:         "/blocks",
+			URL:         URL("/blocks"),
 			Method:      "POST",
 			Description: "See Documentation",
 			Payload:     "data:string",
