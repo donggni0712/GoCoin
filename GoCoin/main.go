@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/donggni0712/GoCoin/blockchain"
+	"github.com/donggni0712/GoCoin/utils"
 )
 
 const port string = ":4000"
@@ -27,6 +30,10 @@ type URLDescription struct {
 	Description string `json:"description"`
 	Payload     string `json:"payload,omitempty"` // omitempty : 빈 값은 출력x #띄어쓰면 안됨
 } // `json:"-"` => field를 무시
+
+type AddBlockBody struct {
+	Message string
+}
 
 func documentation(w http.ResponseWriter, r *http.Request) {
 	data := []URLDescription{
@@ -59,9 +66,23 @@ func documentation(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func blocks(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		w.Header().Add("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(blockchain.GetBlockchain().AllBlocks())
+	case "POST":
+		var addBlockBody AddBlockBody
+		utils.HandleErr(json.NewDecoder(r.Body).Decode(&addBlockBody))
+		blockchain.GetBlockchain().AddBlock(addBlockBody.Message)
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
 func main() {
 	//explorer.Start(4000)
 	http.HandleFunc("/", documentation)
+	http.HandleFunc("/blocks", blocks)
 	fmt.Printf("Listening on http://localhost%s\n", port)
 	log.Fatal(http.ListenAndServe(port, nil))
 }
