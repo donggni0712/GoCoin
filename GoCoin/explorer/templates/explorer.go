@@ -45,13 +45,14 @@ func add(w http.ResponseWriter, r *http.Request) {
 }
 
 func Start(portNum int) {
+	habdler := http.NewServeMux()
 	port := fmt.Sprintf(":%d", portNum)
 	templates = template.Must(template.ParseGlob(templateDir + "pages/*.gohtml"))
 	templates = template.Must(templates.ParseGlob(templateDir + "partials/*.gohtml"))
-	http.HandleFunc("/", home)
-	http.HandleFunc("/add", add)
+	habdler.HandleFunc("/", home)
+	habdler.HandleFunc("/add", add)
 	fmt.Printf("Listrning on http://localhost%s\n", port)
-	log.Fatal(http.ListenAndServe(port, nil))
+	log.Fatal(http.ListenAndServe(port, habdler))
 	//http.ListenAndServe : 서버 실행, 에러가 있으면 에러 리턴
 	//log.Fatal : os.Exit(1)이후에 erro를 출력
 	//os.Exit(1) : error code 1으로 종료
