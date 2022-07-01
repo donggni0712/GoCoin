@@ -103,6 +103,17 @@ func block(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//아래 함수는 http.Handler를 리턴해야하는데 http.HandlerFunc는 Type임
+// http.Handler는 interface
+// adapter에게 적절한 argument를 보내주면 dapter는 필요한 것들을 구현해 줌.
+// adapter pattern 검색해보기
+func jsonContentTypeMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "aplication/json")
+		next.ServeHTTP(w, r)
+	})
+}
+
 func Start(aPort int) {
 	// port = fmt.Sprintf(":%d", aPort)
 	// http.HandleFunc("/", documentation)
@@ -122,6 +133,10 @@ func Start(aPort int) {
 	//gorilla mux 사용
 	//다른 method로부터 보호해줄 수 있고 parameter 넘겨줄 수 있음
 	router := mux.NewRouter()
+
+	//middlerware 사용
+	router.Use(jsonContentTypeMiddleware)
+
 	port = fmt.Sprintf(":%d", aPort)
 	router.HandleFunc("/", documentation).Methods("GET")
 	router.HandleFunc("/blocks", blocks).Methods("GET", "POST")
