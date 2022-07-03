@@ -1,11 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
-
-	explorer "github.com/donggni0712/GoCoin/explorer/templates"
-	rest "github.com/donggni0712/GoCoin/restapi"
 )
 
 func usage() {
@@ -30,14 +28,23 @@ func main() {
 		usage()
 	}
 
+	//FlagSet : Go에게 어떤 command가 어떤 flag를 가질 것인지 알려줌
+	// go run main.go rest -port=4000 -mode=https -v -t .. 처럼 argument가 많을 때 유용
+	rest := flag.NewFlagSet("rest", flag.ExitOnError)
+
+	portFlag := rest.Int("port", 4000, "Set the port of ther server")
+
 	switch os.Args[1] {
 	case "explorer":
 		fmt.Println("Start Explorer")
-		explorer.Start(3000)
 	case "rest":
-		fmt.Println("Start REST API")
-		rest.Start(4000)
+		rest.Parse(os.Args[2:]) // Args에서 "port"를 찾고 값이 int인지 체크하고 넣어줌
 	default:
 		usage()
 	}
+	if rest.Parsed() {
+		fmt.Println(portFlag)
+		fmt.Printf("Start server %d", *portFlag)
+	}
+
 }
